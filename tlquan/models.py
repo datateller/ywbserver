@@ -34,6 +34,11 @@ class TlTopicCollection(models.Model):
     collections = dbarray.IntegerArrayField()
 
 
+def count_praise(topic):
+    praise_num = TlPraise.objects.filter(topic = topic).count()
+    return praise_num
+
+
 def comments_encode(comments):
     rets = []
     number = len(list(comments))
@@ -66,6 +71,7 @@ def circletopiclist_encode(topics):
         t['create_time'] = topic.create_time.strftime('%Y-%m-%d %H:%M:%S' )
         t['update_time'] = topic.update_time.strftime('%Y-%m-%d %H:%M:%S' )
         t['link'] = ""
+        t['praise_num'] = count_praise(topic)
         rets.append(t)
     return rets
 
@@ -98,6 +104,7 @@ def circlenews_encode(news):
     t['create_time'] = news.create_time.strftime('%Y-%m-%d %H:%M:%S' )
     t['update_time'] = news.published_time.strftime('%Y-%m-%d %H:%M:%S' )
     t['link'] = DOMAIN + '/rss/tlnews/webview/?id=' + str(-news.id)
+    t['praise_num'] = 0
     return t
     
     #序列化圈子新闻
