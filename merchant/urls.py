@@ -40,5 +40,6 @@ urlpatterns = patterns('',
     url(r'^user_demand_related_merchant/', user_demand_related_merchant_view),
     url(r'^merchantdetail/(?P<merchant_id>\d+)/', MerchantDetailView.as_view(), name='merchant detail'),
     url(r'^mobile_single_userdemand/', mobile_single_userdemand, name='single userdemand'),
+    url(r'^list/$', mobile_list_merchant),
 )
 

@@ -9,6 +9,7 @@ import random
 import dbarray
 import datetime
 from django.utils.timezone import utc
+from ywbserver.settings import *
 # Create your models here.
 
 class Merchant(models.Model):
@@ -24,7 +25,7 @@ class Merchant(models.Model):
     objects = models.GeoManager()
 
     def geturl(self):
-        return "http://www.yangwabao.com/merchant/merchantdetail/" + str(self.id) + "/"
+        return DOMAIN + "/merchant/merchantdetail/" + str(self.id) + "/"
 
 class CommercialHistory(models.Model):
     commercial_id = models.IntegerField()
@@ -76,6 +77,16 @@ def get_merchant_nearby(latitude, longitude, number=1, distance = 50000):
     else:
         return random.sample(list(nearby), number)
 
+def get_merchant_nearby_point(point, number=1, distance = 50000):
+    #nearby = Merchant.objects.using('ywbwebdb').filter(point__distance_lt=(point, D(km=int(distance)/1000)))
+    nearby = Merchant.objects.filter(point__distance_lt=(point, D(km=int(distance)/1000)))
+    count = nearby.count()
+    if number >= count:
+        print('appmerchant nearby %s is not enough' % (point))
+        return list(Merchant.objects.all()[:number-1])
+    else:
+        return random.sample(list(nearby), number)
+
 def get_merchant_random(number=1):
     all = Merchant.objects.all()
     count = all.count()
@@ -105,5 +116,22 @@ def userdemandslist_encode(userdemands):
         t['response_state'] = 'yes' if respcount > 0 else 'no'
         t['response_num'] = respcount
         
+        rets.append(t)
+    return rets
+
+def merchant_list_encode(merchant):
+    rets = []
+    number = len(list(merchant))
+    picindexes = random.sample((0,1,2,3,4,5,6,7,8,9), number)
+    for i in range(0, number):
+        merchant = merchant[i]
+        t = {}
+        t['id'] = merchant.id
+        t['title'] = merchant.name
+        t['pic'] = 'http://www.yangwabao.com:8001/pic/'+str(picindexes[i])+'.jpg'
+        t['icon'] = 'http://www.yangwabao.com:8001/icon/'+str(picindexes[i])+'.png'
+        t['address'] = merchant.address
+        t['link'] = merchant.geturl()
+        t['commentnum'] = 0
         rets.append(t)
     return rets

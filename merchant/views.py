@@ -529,3 +529,35 @@ def mobile_single_userdemand(request):
        respmerchant.append(item)
     t['response_merchants'] = respmerchant
     return HttpResponse(json_serialize(status='OK', result={'userdemanddetail':t}))
+
+
+def mobile_list_merchant(request):
+    try:
+        if request.method != 'GET':
+            return HttpResponse(json_serialize(status = 'HTTP_METHOD_ERR'))
+        cnumber = int(request.GET.get('number'))
+        if  cnumber == None:
+            cnumber = 5
+        else:
+            cnumber = int(cnumber)
+        (authed, username, password, user) = auth_user(request)
+        if not authed or not user:
+            merchants = get_merchant_random(cnumber)
+            return HttpResponse(json_serialize(status='OK',result=merchant_list_encode(merchants)))
+        else:
+            try:
+                baby = Baby.objects.get(user=user)
+                merchants = get_merchant_nearby_point(point = baby.homepoint, number = cnumber)
+                if len(merchants) == 0:
+                    merchants = get_merchant_random(cnumber)
+                #return HttpResponse(json.dumps(commercials, ensure_ascii=False))
+                return HttpResponse(json_serialize(status='OK',result=merchant_list_encode(merchants)))
+            except Baby.DoesNotExist:
+                return HttpResponse(json_serialize(status = 'BABY_NULL'))
+    except Exception as e:
+        print('Exception:' + str(e))
+        return HttpResponse(json_serialize(status = 'EXCEPTION', result = str(e)))
+
+
+
+
