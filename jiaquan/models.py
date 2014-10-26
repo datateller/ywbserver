@@ -1,4 +1,5 @@
-#coding=UTF8
+# -*- coding: UTF-8 -*-
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as gis_models
@@ -90,6 +91,12 @@ class JiaTopicCollection(models.Model):
     user = models.OneToOneField(User)
     collections = dbarray.IntegerArrayField()
 
+
+def count_praise(topic):
+    praise_num = JiaPraise.objects.filter(topic = topic).count()
+    return praise_num
+
+
 def get_nearby_topic(longitude, latitude, page_size = 5, city = None):
     point = fromstr("POINT(%s %s)" % (longitude, latitude))
     topics = JiaTopic.objects.distance(point).order_by('distance')
@@ -138,9 +145,11 @@ def circletopiclist_encode(topics):
         t['from_user'] = topic.from_user.username
         t['headurl'] = getheadurl(topic.from_user, 'thumbnail')
         t['content'] = topic.content
-        t['JiaComments_num'] = len(JiaComment.objects.filter(topic = topic))
+        t['comments_num'] = len(JiaComment.objects.filter(topic = topic))
         t['create_time'] = topic.create_time.strftime('%Y-%m-%d %H:%M:%S' )
         t['update_time'] = topic.update_time.strftime('%Y-%m-%d %H:%M:%S' )
+        t['link'] = ""
+        t['praise_num'] = count_praise(topic)
         rets.append(t)
     #return json.dumps(rets, ensure_ascii=False)
     return rets
@@ -167,7 +176,7 @@ def circletopic_encode(topics):
 def circlenews_encode(news):
     t = {}
     t['topicid'] = -news.id
-    t['from_user'] = "养娃宝新闻精选"
+    t['from_user'] = "ywb"
     t['from_user_id'] = 0
     t['headurl'] = getheadurl(None, 'thumbnail')
     t['content'] = news.title
@@ -193,6 +202,7 @@ def circlenewslist_encode(newslist):
         t['create_time'] = news.create_time.strftime('%Y-%m-%d %H:%M:%S' )
         t['update_time'] = news.published_time.strftime('%Y-%m-%d %H:%M:%S' )
         t['link'] = news.link
+        t['praise_num'] = 0
         rets.append(t)
     return rets
 

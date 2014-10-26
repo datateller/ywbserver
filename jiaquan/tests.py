@@ -75,8 +75,8 @@ def test_get_topiclist():
     return r.text
 
 def test_get_topiclist_nearby():
-    username = 'shentest1'
-    password = 'shentest1'
+    username = 'sg1'
+    password = 'sg1'
     latitude = '40.2160642139'
     longitude = '116.2098309870'
     username = http.urlsafe_base64_encode(username.encode()).decode()
@@ -91,9 +91,6 @@ def test_get_topiclist_nearby():
     headers = {'content-Type': 'application/x-www-form-urlencoded'}
     payload = {'latitude': latitude, 'longitude': longitude, 'page':1, 'number':5}
     r = requests.get(url, data=payload, headers = headers, cookies = cookies)
-    fp = open("test.html",'w')
-    fp.write(r.text)
-    fp.close()
     return r.text
 
 def test_get_topic():
