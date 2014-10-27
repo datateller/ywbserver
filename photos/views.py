@@ -8,6 +8,7 @@ from django.utils import http
 from django.contrib.sites.models import get_current_site
 from users.utils import *
 from .models import *
+from ywbutils.serialization import *
 
 # Create your views here.
 
@@ -50,3 +51,14 @@ def get_head(request):
     except Exception as e:
         print('Exception:' + str(e))
         return HttpResponse('GET_HEAD_ERR')
+
+def get_advertise(request):
+    try :
+        if request.method != 'GET':
+            return HttpResponse('HTTP_METHOD_ERR')
+        ads = advertise_encode(Advertise.objects.all())
+        number = len(ads)
+        return HttpResponse(json_serialize(status = 'OK', result = {'number':number, 'advertise':ads}))
+    except Exception as e:
+        print('Exception:' + str(e))
+        return HttpResponse('GET_ADVERTISE_ERR')

@@ -40,5 +40,19 @@ def testgethead():
     fp.write(r.text)
     fp.close()
     
+def testgetad():
+    username = 'shentest04'
+    password = 'shentest04'
+    username = http.urlsafe_base64_encode(username.encode()).decode()
+    password = http.urlsafe_base64_encode(password.encode()).decode()
+    url = 'http://localhost:8000/photos/advertise/'
+    payload = {'username': username, 'password': password}
+    r = requests.get(url, data = payload)
+    fp = open("test.html",'w')
+    fp.write(r.text)
+    fp.close()
+    return r.text
+    
 #testuploadhead()
-testgethead()
+#testgethead()
+print(testgetad())

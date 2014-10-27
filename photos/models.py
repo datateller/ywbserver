@@ -47,3 +47,20 @@ def getheadurl(user, type):
     return url
 
 
+
+class Advertise(models.Model):
+    pic = models.TextField(max_length=500,null=True)
+    link = models.TextField(max_length=500,null=True)
+    
+    
+def advertise_encode(advertise):
+    rets = []
+    number = len(list(advertise))
+    for i in range(0, number):
+        ad = advertise[i]
+        c = {}
+        c['pic'] = ad.pic
+        c['link'] = ad.link
+        rets.append(c)
+    return rets
+    

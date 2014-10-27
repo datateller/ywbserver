@@ -11,4 +11,5 @@ urlpatterns = patterns('',
 
     url(r'^uploadhead/', upload_head),
     url(r'^gethead/', get_head),
+    url(r'^advertise/', get_advertise),
 )
