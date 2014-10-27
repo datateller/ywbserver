@@ -535,25 +535,38 @@ def mobile_list_merchant(request):
     try:
         if request.method != 'GET':
             return HttpResponse(json_serialize(status = 'HTTP_METHOD_ERR'))
-        cnumber = int(request.GET.get('number'))
-        if  cnumber == None:
-            cnumber = 5
+        #获取page参数
+        if not request.GET.get('page'):
+            page = 1
         else:
-            cnumber = int(cnumber)
+            page = int(request.GET.get('page'))
+        #获取number参数
+        if not request.GET.get('number'):
+            number = 5
+        else:
+            number = int(request.GET.get('number'))
+        paginator = None
         (authed, username, password, user) = auth_user(request)
         if not authed or not user:
-            merchants = get_merchant_random(cnumber)
-            return HttpResponse(json_serialize(status='OK',result=merchant_list_encode(merchants)))
+            paginator = get_merchant_random(page_size = number)
+            try:
+                return HttpResponse(json_serialize(status = 'OK', result = list(merchant_list_encode(paginator.page(page)))))
+            except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+                return HttpResponse(json_serialize(status = 'OK', result = list(merchant_list_encode(paginator.page(paginator.num_pages)))))
         else:
             try:
                 baby = Baby.objects.get(user=user)
-                merchants = get_merchant_nearby_point(point = baby.homepoint, number = cnumber)
-                if len(merchants) == 0:
-                    merchants = get_merchant_random(cnumber)
+                paginator = get_merchant_nearby_point(point = baby.homepoint, page_size = number)
+                if paginator.count == 0:
+                    paginator = get_merchant_random(page_size = number)
+                return HttpResponse(json_serialize(status = 'OK', result = list(merchant_list_encode(paginator.page(page)))))
                 #return HttpResponse(json.dumps(commercials, ensure_ascii=False))
-                return HttpResponse(json_serialize(status='OK',result=merchant_list_encode(merchants)))
             except Baby.DoesNotExist:
                 return HttpResponse(json_serialize(status = 'BABY_NULL'))
+            except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+                return HttpResponse(json_serialize(status = 'OK', result = list(merchant_list_encode(paginator.page(paginator.num_pages)))))
     except Exception as e:
         print('Exception:' + str(e))
         return HttpResponse(json_serialize(status = 'EXCEPTION', result = str(e)))

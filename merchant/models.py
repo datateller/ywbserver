@@ -9,6 +9,7 @@ import random
 import dbarray
 import datetime
 from django.utils.timezone import utc
+from django.core.paginator import Paginator, EmptyPage
 from ywbserver.settings import *
 # Create your models here.
 
@@ -77,24 +78,28 @@ def get_merchant_nearby(latitude, longitude, number=1, distance = 50000):
     else:
         return random.sample(list(nearby), number)
 
-def get_merchant_nearby_point(point, number=1, distance = 50000):
+def get_merchant_nearby_point(point, page_size=1, distance = 50000):
     #nearby = Merchant.objects.using('ywbwebdb').filter(point__distance_lt=(point, D(km=int(distance)/1000)))
-    nearby = Merchant.objects.filter(point__distance_lt=(point, D(km=int(distance)/1000)))
-    count = nearby.count()
-    if number >= count:
-        print('appmerchant nearby %s is not enough' % (point))
-        return list(Merchant.objects.all()[:number-1])
-    else:
-        return random.sample(list(nearby), number)
+#     nearby = Merchant.objects.filter(point__distance_lt=(point, D(km=int(distance)/1000)))
+#     count = nearby.count()
+#     if number >= count:
+#         print('appmerchant nearby %s is not enough' % (point))
+#         return list(Merchant.objects.all()[:number-1])
+#     else:
+#         return random.sample(list(nearby), number)
+    paginator = Paginator(Merchant.objects.filter(point__distance_lt=(point, D(km=int(distance)/1000))), page_size)
+    return paginator
 
-def get_merchant_random(number=1):
-    all = Merchant.objects.all()
-    count = all.count()
-    if number >= count:
-        print('appmerchant random  is not enough')
-        return list(all[:count])
-    else:
-        return random.sample(list(all), number)
+def get_merchant_random(page_size=1):
+    paginator = Paginator(Merchant.objects.all(), page_size)
+    return paginator
+#     all = Merchant.objects.all()
+#     count = all.count()
+#     if pagesize >= count:
+#         print('appmerchant random  is not enough')
+#         return list(all[:count])
+#     else:
+#         return random.sample(list(all), number)
     
 def store_commercial_history(commercialid, merchantid, babyid):
     display_time = datetime.datetime.utcnow().replace(tzinfo=utc)
