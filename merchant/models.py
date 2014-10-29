@@ -124,12 +124,12 @@ def userdemandslist_encode(userdemands):
         rets.append(t)
     return rets
 
-def merchant_list_encode(merchant):
+def merchant_list_encode(merchants):
     rets = []
-    number = len(list(merchant))
+    number = len(list(merchants))
     picindexes = random.sample((0,1,2,3,4,5,6,7,8,9), number)
     for i in range(0, number):
-        merchant = merchant[i]
+        merchant = merchants[i]
         t = {}
         t['id'] = merchant.id
         t['title'] = merchant.name

@@ -94,7 +94,7 @@ def test_list_merchant_nearby():
     payload = {'username': username, 'password': password}
     r = requests.post(loginurl, data=payload, headers = headers)
     cookies = r.cookies
-    url = 'http://localhost:8000/merchant/list/?number=1'
+    url = 'http://localhost:8000/merchant/list/?number=2'
     headers = {'content-Type': 'application/x-www-form-urlencoded'}
     payload = {'content':"测试移动端帮你找修改后"}
     r = requests.get(url, data=None, headers = None, cookies = cookies)
